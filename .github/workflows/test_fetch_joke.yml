@@ -1,14 +1,27 @@
-name: Test – Fetch joke script
+name: Fetch joke (no translation)
 
 on:
   workflow_dispatch
 
+permissions:
+  contents: write
+
 jobs:
-  test:
+  fetch:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
       - name: Run fetch_joke.py
         run: |
-          python scripts/fetch_joke.py
+          mkdir -p assets
+          python scripts/fetch_joke.py > assets/joke.json
+          cat assets/joke.json
+
+      - name: Commit joke.json
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add assets/joke.json
+          git commit -m "Update joke.json" || exit 0
+          git push
