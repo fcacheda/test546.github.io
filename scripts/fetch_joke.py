@@ -1,5 +1,6 @@
 import json
 import urllib.request
+from datetime import datetime, timezone
 
 URL = "https://icanhazdadjoke.com/"
 req = urllib.request.Request(
@@ -13,6 +14,12 @@ req = urllib.request.Request(
 with urllib.request.urlopen(req, timeout=10) as r:
     data = json.loads(r.read().decode("utf-8"))
 
-print("id:", data.get("id"))
-print("status:", data.get("status"))
-print("joke:", data.get("joke"))
+out = {
+    "api": "icanhazdadjoke",
+    "timestamp": datetime.now(timezone.utc).isoformat(),
+    "joke_id": data.get("id"),
+    "joke": data.get("joke"),
+    "status": data.get("status")
+}
+
+print(json.dumps(out, ensure_ascii=False, indent=2))
