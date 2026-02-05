@@ -7,18 +7,39 @@
   <h1>Práctica DNS</h1>
   <p>Alumno: Fidel</p>
   <p>Aquí va un chiste</p>
-<div id="joke">Cargando…</div>
+  <div id="joke">Cargando…</div>
+  <script>
+  (async () => {
+    const r = await fetch("./assets/joke.json", { cache: "no-store" });
+    const d = await r.json();
+    document.getElementById("joke").innerHTML = `
+      <p>${d.joke}</p>
+      <small>Actualizado: ${new Date(d.timestamp).toLocaleString()}</small>
+    `;
+  })();
+  </script>
+
+  <p>Aquí va una foto de la NASA</p>
+  <div id="apod">Cargando…</div>
 
 <script>
 (async () => {
-  const r = await fetch("./assets/joke.json", { cache: "no-store" });
+  const r = await fetch("./assets/apod.json", { cache: "no-store" });
   const d = await r.json();
-  document.getElementById("joke").innerHTML = `
-    <p>${d.joke}</p>
-    <small>Actualizado: ${new Date(d.timestamp).toLocaleString()}</small>
+
+  const media = (d.media_type === "image")
+    ? `<img src="${d.url}" style="max-width:100%;border-radius:12px;">`
+    : `<a href="${d.url}" target="_blank" rel="noopener">Ver vídeo</a>`;
+
+  document.getElementById("apod").innerHTML = `
+    <h2>${d.title ?? ""}</h2>
+    ${media}
+    <p>${d.explanation ?? ""}</p>
+    <small>${d.date ?? ""}</small>
   `;
 })();
 </script>
+
 
 </body>
 </html>
