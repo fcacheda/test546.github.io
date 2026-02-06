@@ -1,0 +1,45 @@
+# File: .github/workflows/fetch_nasa_apod.yml
+name: Fetch NASA APOD (Python)
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 7 * * *" # daily at 07:00 UTC
+
+permissions:
+  contents: write
+
+jobs:
+  fetch-apod:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install requests
+
+      - name: Run NASA APOD script and save JSON
+        env:
+          NASA_API_KEY: ${{ secrets.NASA_API_KEY }}
+        run: |
+          mkdir -p assets
+          python scripts/fetch_apod.py > assets/apod.json
+          echo "Generated assets/apod.json"
+          head -c 400 assets/apod.json || true
+          echo
+
+      - name: Commit and push updated apod.json
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add assets/apod.json
+          git commit -m "Update NASA APOD data" || exit 0
+          git push
